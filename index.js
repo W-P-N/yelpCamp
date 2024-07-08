@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const methodOverride = require('method-override');
+const ejsMate = require('ejs-mate');
 
 // Models
 const Campground = require('./models/campGround');
@@ -18,6 +19,7 @@ async function connectDb() {
 
 const app = express();
 
+app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
