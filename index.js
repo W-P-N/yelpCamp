@@ -1,5 +1,19 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const path = require('path');
+
+// Models
+const Campground = require('./models/campGround');
+
+// Connect Local Database
+connectDb().catch(err => console.log(err));
+
+// Function to connect Local db
+async function connectDb() {
+  await mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp', {}).then(() => {
+    console.log("Database Connected");
+  })
+}
 
 const app = express();
 
@@ -8,6 +22,14 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.get('/', (req, res) => {
     res.render('home');
+})
+
+app.get('/makecampground', async (req, res) => {
+    const camp = new Campground({
+        title: "Backyard"
+    })
+    await camp.save()
+    res.send("Camp Created");
 })
 
 app.listen(3000, () => {
