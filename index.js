@@ -4,6 +4,7 @@ const path = require('path');
 const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
 const catchAsync = require('./utils/catchAsync');
+const ExpressError = require('./utils/ExpressError');
 
 
 // Models
@@ -48,6 +49,7 @@ app.get('/campgrounds/:id', catchAsync(async (req, res) => {
 
 app.post('/campgrounds', catchAsync(async (req, res) => {
     const campground = new Campground(req.body.campground);
+    if(!campground) throw new ExpressError("Invalid Campground data", 400);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`);
 }))
@@ -69,10 +71,15 @@ app.delete('/campgrounds/:id', catchAsync(async(req,res) => {
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds');
-}))
+}));
+
+app.all('*', (req, res, next) => {
+    next(new ExpressError("Page not found", 404));
+})
 
 app.use((err, req, res, next) => {
-    res.send(err.name);
+    const { status = 500, message } = err;
+    res.status(status).send(message);
     next();
 })
 
