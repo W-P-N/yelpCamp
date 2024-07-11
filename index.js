@@ -10,6 +10,7 @@ const { campgroundSchema } = require('./schemas');
 
 // Models
 const Campground = require('./models/campGround');
+const Review = require('./models/review');
 
 // Connect Local Database
 connectDb().catch(err => console.log(err));
@@ -84,6 +85,15 @@ app.delete('/campgrounds/:id', catchAsync(async(req,res) => {
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds');
+}));
+
+app.post('/campgrounds/:campgroundid/reviews', catchAsync(async (req, res) => {
+    const campground = await Campground.findById(req.params.campgroundid);
+    const review = new Review(req.body.review);
+    campground.reviews.push(review);
+    await review.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${campground._id}`);
 }));
 
 app.all('*', (req, res, next) => {
