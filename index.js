@@ -6,10 +6,16 @@ const ejsMate = require('ejs-mate');
 const session = require('express-session');
 const flash = require('connect-flash');
 const ExpressError = require('./utils/ExpressError');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+
+// Models
+const User = require('./models/user');
 
 // Routes
 const campgroundsRoute = require('./routes/campgrounds');
 const reviewsRoute = require('./routes/reviews');
+const usersRoute = require('./routes/users');
 
 
 // Connect Local Database
@@ -46,12 +52,21 @@ const sessionConfig = {
 app.use(session(sessionConfig));
 app.use(flash());
 
+// Must be used after session
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());  // Add User session storage.
+passport.deserializeUser(User.deserializeUser());  // Remove User sessino storage.
+
 app.use((req, res, next) => {
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     next();
 })
 
+app.use('/', usersRoute);
 app.use('/campgrounds', campgroundsRoute);
 app.use('/campgrounds/:campgroundId/reviews', reviewsRoute);
 
