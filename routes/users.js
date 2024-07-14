@@ -7,32 +7,28 @@ const authController = require('./../controllers/authController');
 
 const { storeReturnTo } = require('./../middelware');
 
-router.get(
-    '/register', 
-    authController.getRegister
-);
+router.route('/register')
+    .get(
+        authController.getRegister
+    )
+    .post(
+        catchAsync(authController.registerUser)
+    );
 
-router.post(
-    '/register', 
-    catchAsync(authController.registerUser)
-);
-
-router.get(
-    '/login', 
-    authController.getLogin
-);
-
-router.post(
-    '/login', 
-    storeReturnTo, 
-    passport.authenticate(
-        'local', {
-            failureFlash: true, 
-            failureRedirect: '/login'
-        }
-    ), 
-    catchAsync(authController.loginUser)
-);
+router.route('/login')
+    .get(
+        authController.getLogin
+    )
+    .post(
+        storeReturnTo, 
+        passport.authenticate(
+            'local', {
+                failureFlash: true, 
+                failureRedirect: '/login'
+            }
+        ), 
+        catchAsync(authController.loginUser)
+    );
 
 router.get(
     '/logout', 

@@ -5,19 +5,20 @@ const campgroundsController = require('./../controllers/campgroundController');
 
 const router = express.Router();
 
-router.get('/', catchAsync(campgroundsController.index));
-
-router.post('/', isLoggedIn, validateCampground, catchAsync(campgroundsController.makeCampground))
+router.route('/')
+    .get(catchAsync(campgroundsController.index))
+    .post(isLoggedIn, validateCampground, catchAsync(campgroundsController.makeCampground));
 
 router.get('/new', isLoggedIn, campgroundsController.newCampground);
 
-router.get('/:id', catchAsync(campgroundsController.viewCampground))
+router.route('/:id')
+    .get(catchAsync(campgroundsController.viewCampground))
+    .put(isLoggedIn, isAuthor, validateCampground, catchAsync(campgroundsController.updateCampground))
+    .delete(isLoggedIn, isAuthor, catchAsync(campgroundsController.deleteCampground));
 
 router.get('/:id/edit', isLoggedIn, isAuthor, catchAsync(campgroundsController.editCampground));
 
-router.put('/:id', isLoggedIn, isAuthor, validateCampground, catchAsync(campgroundsController.updateCampground))
 
-router.delete('/:id', isLoggedIn, isAuthor, catchAsync(campgroundsController.deleteCampground));
 
 
 module.exports = router;
