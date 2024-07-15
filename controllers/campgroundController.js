@@ -1,4 +1,5 @@
 const ExpressError = require('./../utils/ExpressError');
+const { cloudinary } = require('./../cloudinary')
 
 // Models
 const Campground = require('./../models/campGround');
@@ -39,12 +40,19 @@ module.exports.viewCampground = async (req, res) => {
 
 module.exports.updateCampground = async(req, res) => {
     const { id } = req.params;
+    console.log(req.body);
     const campground = await Campground.findByIdAndUpdate(id, {...req.body.campground});
     // console.log(campground);
     const imgs = req.files.map(f => ({url: f.path, filename: f.filename}));
     // console.log(imgs);
     campground.images.push(...imgs);
     await campground.save();
+    if (req.body.deleteImages) {
+        for(let filename of req.body.deleteImages) {
+            await cloudinary.uploader.destroy(filename);
+        }
+        await campground.updateOne({$pull: {images: {filename: {$in: req.body.deleteImages}}}});
+    }
     req.flash('success', 'Successfully updated campground');
     res.redirect(`/campgrounds/${campground._id}`);
 };
