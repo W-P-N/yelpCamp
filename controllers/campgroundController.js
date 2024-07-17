@@ -25,7 +25,6 @@ module.exports.makeCampground = async (req, res) => {
     console.log(campground);
     req.flash('success', 'Successfully made new campground');
     res.redirect(`/campgrounds/${campground._id}`);
-    res.send("Worked?")
 };
 
 module.exports.newCampground = (req, res) => { 
