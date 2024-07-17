@@ -7,6 +7,7 @@ const path = require('path');
 const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const flash = require('connect-flash');
 const ExpressError = require('./utils/ExpressError');
 const passport = require('passport');
@@ -14,6 +15,7 @@ const LocalStrategy = require('passport-local');
 const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
 // const dbUrl = process.env.DB_URL
+const dbUrl = 'mongodb://127.0.0.1:27017/yelp-camp';
 
 // Models
 const User = require('./models/user');
@@ -29,7 +31,7 @@ connectDb().catch(err => console.log(err));
 
 // Function to connect Local db
 async function connectDb() {
-  await mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp', {}).then(() => {
+  await mongoose.connect(dbUrl, {}).then(() => {
     console.log("Database Connected");
   })
 }
@@ -45,7 +47,17 @@ app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(mongoSanitize());
 
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    secret: 'thisissecret',
+    touchAfter: 24 * 60 * 60
+})
+
+store.on('error', function(e) {
+    console.log("Store Error: ", e);
+})
 const sessionConfig = {
+    store,
     secret: 'thisissecret',
     resave: false,
     saveUninitialized: true,
