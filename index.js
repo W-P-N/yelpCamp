@@ -16,6 +16,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
 const dbUrl = process.env.DB_URL
 // const dbUrl = 'mongodb://127.0.0.1:27017/yelp-camp';
+const secret = process.env.SECRET || 'thisissecret';
 
 // Models
 const User = require('./models/user');
@@ -49,7 +50,7 @@ app.use(mongoSanitize());
 
 const store = MongoStore.create({
     mongoUrl: dbUrl,
-    secret: 'thisissecret',
+    secret,
     touchAfter: 24 * 60 * 60
 })
 
@@ -58,7 +59,7 @@ store.on('error', function(e) {
 })
 const sessionConfig = {
     store,
-    secret: 'thisissecret',
+    secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
